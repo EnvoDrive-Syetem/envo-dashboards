@@ -1,0 +1,9 @@
+Employee,Board,Title,Priority,Due,OverdueDays,Stale
+Casey (sample),Systems and IT,Inventory count in all warehouses,None,2025-09-12,426,1
+Alex (sample),Customer and Technical Services,Refine the Technical Service SOP,None,2026-04-10,216,1
+Blair (sample),Marketing and Communications,Draft and publish the M50 press release,High,2026-10-13,30,1
+Finley (sample),Marketing and Communications,Wrap up the helmet prize campaign,High,2026-10-20,23,1
+Gray (sample),Finance and Accounting,Chargeback dispute action register,High,2026-10-29,14,1
+Kai (sample),Sales and Business Development,Review newsletter reactions and log follow-ups,High,2026-11-03,9,0
+Casey (sample),Supply Chain and Logistics,Confirm container and battery shipping for CES,High,2026-11-11,1,0
+Blair (sample),Marketing and Communications,Monthly dealer newsletter,Medium,2026-12-10,,0

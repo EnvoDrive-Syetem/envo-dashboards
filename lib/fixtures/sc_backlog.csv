@@ -1,0 +1,13 @@
+SO,OrderDate,Status,Customer,Value,ExpectedShip,Delivery,DaysOpen
+SO-2616,2025/05/27,partially_invoiced,Sample Dealer A,CAD 359.50,2025/05/27,Standard Shipping,541
+SO-14308,2025/07/10,draft,Sample Distributor B,"CAD 96,004.50",,,497
+SO-3815,2026/03/27,open,Sample Dealer C,"CAD 8,864.47",2026/03/27,Western Canada Express-InterModal,237
+SO-3899,2026/04/13,open,Sample Dealer D,"CAD 2,775.47",2026/04/13,Fit-to-Ship XL - Ground,220
+SO-16229,2026/05/22,partially_invoiced,Sample Dealer E,"CAD 13,395.00",,,181
+SO-4625,2026/07/06,partially_invoiced,Sample Dealer F,"CAD 21,648.90",2026/07/06,Local Pick Up,136
+SO-16759,2026/07/30,partially_invoiced,Sample Distributor G,"CAD 147,807.03",,,112
+SO-5075,2026/09/25,partially_invoiced,Sample Dealer H,"CAD 48,519.47",2026/09/25,Shipping Fee,55
+SO-17097,2026/09/15,draft,Sample Customer I,"CAD 25,486.88",,Air,65
+SO-5193,2026/11/12,open,Sample Dealer J,"CAD 9,213.32",2026/11/12,Fit-to-Ship XL - Ground,7
+SO-17401,2026/11/09,draft,Sample Customer K,"CAD 150,189.18",,,10
+SO-5201,2026/11/19,draft,Sample Dealer L,"CAD 3,492.92",2026/11/19,Fit-to-Ship XL - Ground,0

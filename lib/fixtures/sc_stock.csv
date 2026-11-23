@@ -1,0 +1,21 @@
+Line,Warehouse,OnHand,Available,Incoming,StockValue,NegativeLines
+E-Bikes,Canada 3PL BC,553,500,0,580500.05,1
+E-Bikes,Canada 3PL Toronto,265,252,0,271915.86,1
+MoonBike,Canada Envo Drive Systems BC,42,39,5,181061.68,1
+E-Bikes,Canada Envo Drive Systems BC,142,34,55,131198.11,11
+MoonBike,Poland 3PL,23,22,0,116171.25,1
+MoonBike,USA 3PL LA,17,15,0,59428.00,0
+MoonBike,USA 3PL Detroit,7,6,0,34873.69,0
+Veemo,Poland 3PL,16,15,0,25985.69,0
+E-Bikes,Accounting,24,24,0,19206.19,0
+E-Bikes,Canada 1685 Ingleton BC,16,-60,0,16303.30,20
+Scooters,Canada Envo Drive Systems BC,24,24,0,9599.09,3
+MoonBike,Canada 1685 Ingleton BC,2,-8,0,8351.77,1
+Scooters,Canada 1685 Ingleton BC,19,19,0,6447.02,3
+MoonBike,France 3PL,1,1,0,3935.71,0
+Snow Bike,Canada Envo Drive Systems BC,2,0,0,3447.40,0
+Veemo,Canada 1685 Ingleton BC,2,1,0,3248.21,0
+E-Bikes,USA 3PL LA,2,2,0,2431.25,0
+MoonBike,Canada 3PL BC,0,0,9,0,0
+Scooters,EbikeBC Website,-16,-16,0,-6065.91,5
+E-Bikes,EbikeBC Website,-14,-15,0,-9196.29,2

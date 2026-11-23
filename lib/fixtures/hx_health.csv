@@ -1,0 +1,35 @@
+Level,LevelOrder,Group,Name,Actual,Commit,Stretch,LastYear,Gap,Pct,VsLY,Status,StatusOrder,HasPlan
+Company,1,ENVO,All sales,196372.2,244959.2,264846.29,179580.74,-48587,80.17,9.35,Off track,1,1
+Channel,2,Channels,B2C,156937.68,216004.83,233540.99,132591.42,-59067.15,72.65,18.36,Off track,1,1
+Channel,2,Channels,Costco,-6147,12160.89,12160.89,3088,-18307.89,-50.55,-299.06,Off track,1,1
+Channel,2,Channels,B2B,45581.52,16793.48,19144.41,43901.32,28788.04,271.42,3.83,On track,3,1
+Product line,3,Product lines,LEV,111055.33,148818,151807.66,94938.92,-37762.67,74.62,16.98,Off track,1,1
+Product line,3,Product lines,E-Bikes,44486.06,72773.51,88671.87,70817.32,-28287.45,61.13,-37.18,Off track,1,1
+Product line,3,Product lines,"Parts, shipping and other",40830.81,23367.69,24366.76,13824.5,17463.12,174.73,195.35,On track,3,1
+Product,4,LEV,MoonBikes,91161.8,120175.67,120175.67,86524.12,-29013.87,75.86,5.36,Off track,1,1
+Product,4,E-Bikes,Stax Pro,-9126,11025.6,11710.11,18291,-20151.6,-82.77,-149.89,Off track,1,1
+Product,4,LEV,Veemo,268.24,12593.88,15583.54,325.14,-12325.64,2.13,-17.5,Off track,1,1
+Product,4,E-Bikes,X50,0,4575.52,4771.43,-2179,-4575.52,0,100,At risk,2,1
+Product,4,E-Bikes,Trike,0,4055.52,4055.52,2600.32,-4055.52,0,-100,At risk,2,1
+Product,4,E-Bikes,M50 (Mountain),2687.4,6455.79,12911.53,0,-3768.39,41.63,,At risk,2,1
+Product,4,LEV,SnowKart,5087.26,8285.54,8285.54,0,-3198.28,61.4,,At risk,2,1
+Product,4,E-Bikes,Lynx 20 Demo,0,2160.12,2160.12,6194,-2160.12,0,-100,At risk,2,1
+Product,4,E-Bikes,Stax,0,2011.05,2011.05,0,-2011.05,0,,At risk,2,1
+Product,4,E-Bikes,U50 (Family/Cargo),2411.1,4346.59,10866.39,0,-1935.49,55.47,,At risk,2,1
+Product,4,E-Bikes,Stax DB,1607.4,3028.19,3028.19,0,-1420.79,53.08,,At risk,2,1
+Product,4,E-Bikes,Overland,0,1349.77,1349.77,7731.75,-1349.77,0,-100,At risk,2,1
+Product,4,E-Bikes,Lynx 16,0,603.36,603.36,1998,-603.36,0,-100,At risk,2,1
+Product,4,E-Bikes,"Legacy bikes (D35, ST, Urban)",0,413.75,413.75,0,-413.75,0,,At risk,2,1
+Product,4,E-Bikes,Lynx 20,3598,3907.68,4270.82,-3128,-309.68,92.08,215.03,At risk,2,1
+Product,4,E-Bikes,D50 mtb,0,215.5,215.5,0,-215.5,0,,At risk,2,1
+Product,4,E-Bikes,Costco promotion deductions,0,0,0,-3500,0,,100,Last year only,6,0
+Product,4,"Parts, shipping and other",Services and fees,1333.5,1168.68,1168.68,2366.91,164.82,114.1,-43.66,On track,3,1
+Product,4,E-Bikes,ST50,11940.95,11116.74,11781.19,17426.61,824.21,107.41,-31.48,On track,3,1
+Product,4,E-Bikes,X50 Demo,2998,1726.52,1942.31,2499,1271.48,173.64,19.97,On track,3,1
+Product,4,LEV,Snowbike,1828.4,0,0,8089.66,1828.4,,-77.4,No plan,4,0
+Product,4,E-Bikes,Stax Pro Demo,5396,2746.5,2746.5,7349.64,2649.5,196.47,-26.58,On track,3,1
+Product,4,"Parts, shipping and other","Other (third-party, eco fees, misc)",4550.73,26.84,26.84,-4077.33,4523.89,16955.03,211.61,On track,3,1
+Product,4,LEV,MoonBike Demo,12709.63,7762.91,7762.91,0,4946.72,163.72,,On track,3,1
+Product,4,"Parts, shipping and other",Shipping income,10868.5,5378.02,5646.93,4569.97,5490.48,202.09,137.82,On track,3,1
+Product,4,"Parts, shipping and other","Spare parts, batteries and kits",24078.08,16794.15,17524.31,10964.95,7283.93,143.37,119.59,On track,3,1
+Product,4,E-Bikes,D50,22973.21,13035.31,13834.33,15534,9937.9,176.24,47.89,On track,3,1

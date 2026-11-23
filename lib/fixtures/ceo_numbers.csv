@@ -1,0 +1,6 @@
+CardNo,Card,No,Number,Owner,Value,Shown,Goal,Status,StatusOrder,Period,Detail
+3,Cash & Inventory,3,Cash in bank,Hossein,,Not typed yet,Above the cash floor (floor not set yet),Not typed,0,Latest typed value,Type it each Monday in the table Monday Typed Numbers
+1,Sales,1,Sales this month vs Commit plan,Steve,80,80% of Commit,100% of Commit for the same days,Red,1,"Month to date, to yesterday",$196k net sales against $245k Commit. Red = more than 10% and $5k short (file 24)
+3,Cash & Inventory,6,Inventory value,Shayan,"2,267,262.6",$2.27M,At or below plan (no stock plan yet),No goal,4,Today,"Same day last year $2.26M. Books ledger, stock accounts"
+2,Profit,2,Gross margin %,Haseeb,54,54.0%,40% or better,Green,3,Last full month,"Income $619k, cost of goods $285k. Books ledger; the month is not locked and can still move"
+3,Cash & Inventory,4,Receivables over 60 days past due,Steve,"175,821.4",$176k,Under $150k,Red,1,Today,93 invoices; total open receivables $454k
