@@ -70,6 +70,20 @@ function combos(id: string): Record<string, string>[] {
 const jobs = Object.keys(QUERIES).filter((id) => !SKIP(id)).flatMap((id) => combos(id).map((values) => ({ id, values })));
 console.log(`${jobs.length} data files to build${FIXTURES ? " (sample data)" : ""}`);
 
+// Oldest (or missing) numbers first, so that when a run hits its time cap the next
+// run carries on where it stopped, instead of always redoing the same ones.
+const prev = new Map<string, string | null>();
+if (!FIXTURES && LIVE) {
+  const todo = jobs.slice();
+  await Promise.all(Array.from({ length: 8 }, async () => {
+    for (let j = todo.shift(); j; j = todo.shift()) { const n = `${dataKey(j.id, j.values)}.json`; prev.set(n, await previous(n)); }
+  }));
+  const age = (j: { id: string; values: Record<string, string> }) => {
+    try { return Date.parse(JSON.parse(prev.get(`${dataKey(j.id, j.values)}.json`) || "").fetchedAt) || 0; } catch { return 0; }
+  };
+  jobs.sort((a, b) => age(a) - age(b));
+}
+
 let ok = 0, failed = 0, reused = 0, limitHit = false, limitStrikes = 0;
 const fetchedAt = new Date().toISOString();
 async function lane() {
@@ -106,12 +120,12 @@ async function lane() {
       failed++;
       const name = `${dataKey(job.id, job.values)}.json`;
       // Keep the copy that is on the live site now, so a failed query never blanks a chart.
-      const kept = await previous(name);
+      const kept = prev.has(name) ? prev.get(name)! : await previous(name);
       if (kept) { fs.writeFileSync(new URL(name, OUT), kept); reused++; }
       console.error(`FAILED ${job.id} ${JSON.stringify(job.values)}: ${(e as Error).message}${kept ? " (kept the previous numbers)" : ""}`);
     }
   }
 }
-await Promise.all([lane(), lane()]); // 2 at a time: Zoho allows only a few exports at once per organization
+await Promise.all([lane(), lane(), lane()]); // 3 at a time: Zoho allows 5 exports at once per organization; API calls are paced in lib/zoho.ts
 console.log(`done: ${ok} written, ${failed} failed (${reused} kept from the previous update)`);
 if (ok + reused === 0) process.exit(1);
