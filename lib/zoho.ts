@@ -84,7 +84,10 @@ async function runExport(sql: string): Promise<string> {
   if (!jobId) throw new Error(`Zoho did not start the export: ${why}`);
 
   // Check often at first (most jobs finish in 1-3 s), then back off a little.
-  for (let i = 0, waited = 0; waited < 55_000; i++) {
+  // The hourly GitHub job can wait longer: giving up early leaves the job running
+  // in Zoho, where it keeps one of the organization's few export slots busy.
+  const maxWait = process.env.GITHUB_ACTIONS ? 600_000 : 55_000;
+  for (let i = 0, waited = 0; waited < maxWait; i++) {
     const pause = i < 10 ? 400 : 1000;
     await new Promise((r) => setTimeout(r, pause));
     waited += pause;
