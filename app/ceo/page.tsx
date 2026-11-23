@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { Shell, Fetched, useReload } from "@/components/ui";
 import { useData } from "@/components/useData";
 import { GmChart, attention } from "@/components/sections";
@@ -34,7 +35,7 @@ function Overview() {
             <div className="note">Goal: {String(r.Goal || "not set")} · {String(r.Period || "")} · Owner: {String(r.Owner || "—")}</div>
             {r.Detail && <div className="note">{String(r.Detail)}</div>}
           </div>)}
-          <a className="more" href={c.link}>Details →</a>
+          <Link className="more" href={c.link}>Details →</Link>
         </section>;
       })}
     </div>}
