@@ -29,8 +29,8 @@ export function SalesHealth({ showProducts = false }: { showProducts?: boolean }
       sub="The same numbers as Haseeb's Sales Health FY27 – Executive dashboard in Zoho Analytics. Green, orange and red follow its On track, At risk and Off track rules.">
       <div className="filters">
         <Select label="Period" value={p.hperiod} options={opts(["Month to date", "Quarter to date", "FY to date"])} onChange={(x) => setP({ ...p, hperiod: x })} />
-        <Select label="Focus channel" value={p.hchannel} options={opts(["All channels", "B2B", "B2C", "Costco"])} onChange={(x) => setP({ ...p, hchannel: x })} />
-        <Select label="Focus line" value={p.hline} options={opts(["All lines", "E-Bikes", "LEV", "Parts, shipping and other", "UPT"])} onChange={(x) => setP({ ...p, hline: x })} />
+        <Select label="Focus channel" value={p.hchannel} options={opts(["All channels", "B2B", "B2C", "Costco"])} onChange={(x) => setP({ ...p, hchannel: x, hline: "All lines" })} />
+        <Select label="Focus line" value={p.hline} options={opts(["All lines", "E-Bikes", "LEV", "Parts, shipping and other", "UPT"])} onChange={(x) => setP({ ...p, hline: x, hchannel: "All channels" })} />
       </div>
       <ChartState status={summary.status} error={summary.error} />
       {empty && <p className="note">There is no plan for this channel and product line together. Pick another combination.</p>}
