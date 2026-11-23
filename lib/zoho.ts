@@ -43,7 +43,15 @@ function need(name: string): string {
   return v;
 }
 
+// Zoho allows 40 bulk API calls a minute for the whole account (error 6045 beyond
+// that). The hourly GitHub job paces itself to one call every 2 seconds.
+let nextCall = 0;
 async function zget(path: string): Promise<Response> {
+  if (process.env.GITHUB_ACTIONS) {
+    const at = Math.max(Date.now(), nextCall);
+    nextCall = at + 2000;
+    if (at > Date.now()) await new Promise((r) => setTimeout(r, at - Date.now()));
+  }
   return fetch(`${API}/restapi/v2${path}`, {
     headers: { Authorization: `Zoho-oauthtoken ${await accessToken()}`, "ZANALYTICS-ORGID": ORG },
     cache: "no-store",
@@ -68,38 +76,51 @@ async function slot<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 // ---- export job ---------------------------------------------------------
+// Zoho also limits how many API calls the account may make per minute and per
+// day ("EXCEEDING_USR_PLN_API_FREQ_COUNT"). Such a refusal must never be read
+// as "no rows", and the job should check on exports sparingly.
+const BATCH = !!process.env.GITHUB_ACTIONS; // the hourly GitHub job, not a live server
+const isLimit = (t: string) => /EXCEEDING|"errorCode"\s*:\s*604[345]\b/.test(t);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function runExport(sql: string): Promise<string> {
   const config = encodeURIComponent(JSON.stringify({ sqlQuery: sql, responseFormat: "csv" }));
   // Zoho refuses new jobs while 5 are running for the organization (anyone's),
   // so try again a few times with growing pauses before giving up.
   let jobId: string | undefined, why = "";
   for (let attempt = 0; attempt < 5 && !jobId; attempt++) {
-    if (attempt) await new Promise((r) => setTimeout(r, [0, 1000, 2000, 4000, 6000][attempt]));
+    if (attempt) await sleep(BATCH ? 15_000 * attempt : [0, 1000, 2000, 4000, 6000][attempt]);
     const start = await zget(`/bulk/workspaces/${WORKSPACE}/data?CONFIG=${config}`);
-    const startJson = await start.json().catch(() => ({}));
+    const text = await start.text();
+    let startJson: any = {}; try { startJson = JSON.parse(text); } catch {}
     jobId = startJson?.data?.jobId;
     why = startJson?.data?.errorMessage || `HTTP ${start.status}`;
+    if (!jobId && isLimit(text)) throw new Error("Zoho API call limit reached");
     if (!jobId && start.status === 401) break;
   }
   if (!jobId) throw new Error(`Zoho did not start the export: ${why}`);
 
-  // Check often at first (most jobs finish in 1-3 s), then back off a little.
-  // The hourly GitHub job can wait longer: giving up early leaves the job running
-  // in Zoho, where it keeps one of the organization's few export slots busy.
-  const maxWait = process.env.GITHUB_ACTIONS ? 600_000 : 55_000;
+  // Live server: check often (most jobs finish in 1-3 s). Hourly job: check every
+  // few seconds to save API calls, and wait longer rather than abandon the job,
+  // which would keep one of the organization's few export slots busy.
+  const maxWait = BATCH ? 600_000 : 55_000;
   for (let i = 0, waited = 0; waited < maxWait; i++) {
-    const pause = i < 10 ? 400 : 1000;
-    await new Promise((r) => setTimeout(r, pause));
+    const pause = BATCH ? (i === 0 ? 2000 : 4000) : i < 10 ? 400 : 1000;
+    await sleep(pause);
     waited += pause;
     const st = await zget(`/bulk/workspaces/${WORKSPACE}/exportjobs/${jobId}`);
-    const code = String((await st.json())?.data?.jobCode || "");
+    const stText = await st.text();
+    if (isLimit(stText)) throw new Error("Zoho API call limit reached");
+    let code = ""; try { code = String(JSON.parse(stText)?.data?.jobCode || ""); } catch {}
     if (code === "1004") {
       const dl = await zget(`/bulk/workspaces/${WORKSPACE}/exportjobs/${jobId}/data`);
+      if (dl.ok) return await dl.text();
+      const body = await dl.text();
+      if (isLimit(body)) throw new Error("Zoho API call limit reached");
       // Zoho answers 400 instead of an empty file when a query has no rows
       // (e.g. an employee with no cards in the period): treat that as empty.
       if (dl.status === 400) return "";
-      if (!dl.ok) throw new Error(`Zoho download failed: ${dl.status}`);
-      return await dl.text();
+      throw new Error(`Zoho download failed: ${dl.status}`);
     }
     if (code === "1003" || code === "1005") throw new Error("Zoho reported an error running this query");
   }
