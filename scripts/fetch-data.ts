@@ -53,7 +53,14 @@ function combos(id: string): Record<string, string>[] {
 const jobs = Object.keys(QUERIES).filter((id) => !SKIP(id)).flatMap((id) => combos(id).map((values) => ({ id, values })));
 console.log(`${jobs.length} data files to build${FIXTURES ? " (sample data)" : ""}`);
 
-let ok = 0, failed = 0;
+let ok = 0, failed = 0, reused = 0, limitHit = false, limitStrikes = 0;
+// The site as currently published, e.g. https://envodrive-syetem.github.io/envo-dashboards/
+const [owner, repo] = (process.env.GITHUB_REPOSITORY || "/").split("/");
+const LIVE = owner && repo ? `https://${owner.toLowerCase()}.github.io/${repo}/data/` : "";
+async function previous(name: string): Promise<string | null> {
+  if (!LIVE) return null;
+  try { const r = await fetch(LIVE + name); return r.ok ? await r.text() : null; } catch { return null; }
+}
 const fetchedAt = new Date().toISOString();
 async function lane() {
   for (let job = jobs.shift(); job; job = jobs.shift()) {
@@ -64,13 +71,19 @@ async function lane() {
         rows = fs.existsSync(f) ? parseCsv(fs.readFileSync(f, "utf8")).rows : [];
       } else {
         // Zoho sometimes is busy ("Async export limit reached") or slow; wait and try again.
+        // When the account's API call limit is hit, stop asking and keep last hour's files.
+        if (limitHit) throw new Error("skipped: Zoho API call limit reached earlier in this run");
         const sql = fillSql(QUERIES[job.id].sql, job.values);
         for (let attempt = 1; ; attempt++) {
           try { rows = (await query(sql)).rows; break; }
           catch (e) {
-            if (attempt >= 4) throw e;
-            console.log(`retry ${attempt} ${job.id}: ${(e as Error).message.slice(0, 80)}`);
-            await new Promise((r) => setTimeout(r, 20_000 * attempt));
+            const msg = (e as Error).message;
+            const limit = /API call limit/.test(msg);
+            // A per-minute limit clears after a minute; if it keeps happening it is the daily cap.
+            if (limit && ++limitStrikes >= 5) limitHit = true;
+            if (attempt >= 3 || limitHit) throw e;
+            console.log(`retry ${attempt} ${job.id}: ${msg.slice(0, 80)}`);
+            await new Promise((r) => setTimeout(r, limit ? 65_000 : 20_000 * attempt));
           }
         }
       }
@@ -79,10 +92,14 @@ async function lane() {
       ok++;
     } catch (e) {
       failed++;
-      console.error(`FAILED ${job.id} ${JSON.stringify(job.values)}: ${(e as Error).message}`);
+      const name = `${dataKey(job.id, job.values)}.json`;
+      // Keep the copy that is on the live site now, so a failed query never blanks a chart.
+      const kept = await previous(name);
+      if (kept) { fs.writeFileSync(new URL(name, OUT), kept); reused++; }
+      console.error(`FAILED ${job.id} ${JSON.stringify(job.values)}: ${(e as Error).message}${kept ? " (kept the previous numbers)" : ""}`);
     }
   }
 }
 await Promise.all([lane(), lane()]); // 2 at a time: Zoho allows only a few exports at once per organization
-console.log(`done: ${ok} written, ${failed} failed`);
-if (ok === 0) process.exit(1);
+console.log(`done: ${ok} written, ${failed} failed (${reused} kept from the previous update)`);
+if (ok + reused === 0) process.exit(1);
