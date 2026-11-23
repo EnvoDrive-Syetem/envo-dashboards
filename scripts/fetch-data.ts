@@ -9,6 +9,13 @@ import { presets } from "../lib/datakey.ts";
 import { query, parseCsv } from "../lib/zoho.ts";
 
 const FIXTURES = process.argv.includes("--fixtures");
+// A commit whose message contains [skip data] republishes the site with the numbers
+// already on it (for code fixes), without asking Zoho for anything.
+let QUICK = false;
+try { QUICK = /\[skip data\]/i.test(JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH || "", "utf8"))?.head_commit?.message || ""); } catch {}
+// Stop asking Zoho after this long and keep the previous numbers for the rest,
+// so a slow Zoho never holds up the site (or overlaps the next hourly run).
+const STARTED = Date.now(), BUDGET_MS = 40 * 60_000;
 const OUT = new URL("../public/data/", import.meta.url);
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -22,6 +29,13 @@ function dataKey(id: string, params: Record<string, string>): string {
   return [id, ...parts].map((p) => encodeURIComponent(p).replace(/[^A-Za-z0-9_-]/g, "_")).join("__");
 }
 
+// The site as currently published, e.g. https://envodrive-syetem.github.io/envo-dashboards/
+const [owner, repo] = (process.env.GITHUB_REPOSITORY || "/").split("/");
+const LIVE = process.env.LIVE_DATA_URL || (owner && repo ? `https://${owner.toLowerCase()}.github.io/${repo}/data/` : "");
+async function previous(name: string): Promise<string | null> {
+  if (!LIVE) return null;
+  try { const r = await fetch(LIVE + name); return r.ok ? await r.text() : null; } catch { return null; }
+}
 let names: { Kind: string; Name: string }[] = [];
 function combos(id: string): Record<string, string>[] {
   const ps = QUERIES[id].params;
@@ -47,20 +61,16 @@ function combos(id: string): Record<string, string>[] {
 // The employee and board lists decide which productivity files to build.
 {
   const sql = QUERIES.ep_options.sql;
-  const rows = FIXTURES ? parseCsv(fs.readFileSync(new URL("../lib/fixtures/ep_options.csv", import.meta.url), "utf8")).rows : (await query(sql)).rows;
-  names = rows.map((r) => ({ Kind: String(r.Kind), Name: String(r.Name) }));
+  let rows;
+  if (FIXTURES) rows = parseCsv(fs.readFileSync(new URL("../lib/fixtures/ep_options.csv", import.meta.url), "utf8")).rows;
+  else if (QUICK) rows = JSON.parse((await previous(`${dataKey("ep_options", {})}.json`)) || '{"rows":[]}').rows;
+  else rows = (await query(sql)).rows;
+  names = rows.map((r: Record<string, unknown>) => ({ Kind: String(r.Kind), Name: String(r.Name) }));
 }
 const jobs = Object.keys(QUERIES).filter((id) => !SKIP(id)).flatMap((id) => combos(id).map((values) => ({ id, values })));
 console.log(`${jobs.length} data files to build${FIXTURES ? " (sample data)" : ""}`);
 
 let ok = 0, failed = 0, reused = 0, limitHit = false, limitStrikes = 0;
-// The site as currently published, e.g. https://envodrive-syetem.github.io/envo-dashboards/
-const [owner, repo] = (process.env.GITHUB_REPOSITORY || "/").split("/");
-const LIVE = owner && repo ? `https://${owner.toLowerCase()}.github.io/${repo}/data/` : "";
-async function previous(name: string): Promise<string | null> {
-  if (!LIVE) return null;
-  try { const r = await fetch(LIVE + name); return r.ok ? await r.text() : null; } catch { return null; }
-}
 const fetchedAt = new Date().toISOString();
 async function lane() {
   for (let job = jobs.shift(); job; job = jobs.shift()) {
@@ -73,6 +83,8 @@ async function lane() {
         // Zoho sometimes is busy ("Async export limit reached") or slow; wait and try again.
         // When the account's API call limit is hit, stop asking and keep last hour's files.
         if (limitHit) throw new Error("skipped: Zoho API call limit reached earlier in this run");
+        if (QUICK) throw new Error("skipped: [skip data] commit");
+        if (Date.now() - STARTED > BUDGET_MS) throw new Error("skipped: this run's 40 minutes are up");
         const sql = fillSql(QUERIES[job.id].sql, job.values);
         for (let attempt = 1; ; attempt++) {
           try { rows = (await query(sql)).rows; break; }
