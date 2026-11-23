@@ -166,4 +166,18 @@ if (DERIVED) {
 
 await Promise.all([lane(), lane(), lane()]); // 3 at a time: Zoho allows 5 exports at once per organization; API calls are paced in lib/zoho.ts
 console.log(`done: ${ok} written, ${failed} failed (${reused} kept from the previous update)`);
+
+// Health report for monitoring: how old and how big every published data file is.
+{
+  const files: Record<string, { rows: number; fetchedAt: string | null }> = {};
+  for (const f of fs.readdirSync(OUT)) {
+    if (!f.endsWith(".json") || f.startsWith("_")) continue;
+    try { const d = JSON.parse(fs.readFileSync(new URL(f, OUT), "utf8")); files[f] = { rows: (d.rows || []).length, fetchedAt: d.fetchedAt || null }; }
+    catch { files[f] = { rows: -1, fetchedAt: null }; }
+  }
+  fs.writeFileSync(new URL("_health.json", OUT), JSON.stringify({
+    runAt: fetchedAt, finishedAt: new Date().toISOString(), quick: QUICK, written: ok, failed, kept: reused,
+    productivity: DERIVED ? (ep ? "fresh" : "kept previous") : "not refreshed", files,
+  }));
+}
 if (ok + reused === 0) process.exit(1);
