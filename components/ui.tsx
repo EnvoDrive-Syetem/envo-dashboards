@@ -14,6 +14,7 @@ const PAGES = [
   { href: "/sales", label: "Sales" },
   { href: "/supply-chain", label: "Supply chain" },
   { href: "/productivity", label: "Productivity" },
+  { href: "/marketing", label: "Marketing" },
 ];
 
 export function Shell({ children }: { children: ReactNode }) {
