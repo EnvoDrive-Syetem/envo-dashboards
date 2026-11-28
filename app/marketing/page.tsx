@@ -1,37 +1,16 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { Shell } from "@/components/ui";
 
-// The weekly marketing report is a self-contained page in public/marketing-report/.
-// It is a weekly snapshot (Shopify, Google/Meta/TikTok ads, GA4, Klaviyo, Zoho CRM),
-// not part of the hourly Zoho Analytics update. Replace report-data.js each week.
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH || "";
+// Marketing lives in the marketing team's own "Weekly Marketing Report" on claude.ai,
+// so whatever they publish there is what people see. This page just forwards to it.
+const REPORT = "https://claude.ai/artifact/H5eKMCj8Tx3cNa2wzefHyL";
 
 export default function MarketingPage() {
-  const ref = useRef<HTMLIFrameElement>(null);
-  const [h, setH] = useState(1200);
-  useEffect(() => {
-    const f = ref.current;
-    if (!f) return;
-    let ro: ResizeObserver | null = null;
-    const fit = () => {
-      const doc = f.contentDocument;
-      if (!doc?.body) return;
-      setH(doc.documentElement.scrollHeight + 4);
-      if (!ro) { ro = new ResizeObserver(() => setH(doc.documentElement.scrollHeight + 4)); ro.observe(doc.body); }
-    };
-    f.addEventListener("load", fit);
-    fit();
-    return () => { f.removeEventListener("load", fit); ro?.disconnect(); };
-  }, []);
+  useEffect(() => { window.location.replace(REPORT); }, []);
   return (
     <Shell>
-      <iframe
-        ref={ref}
-        src={`${BASE}/marketing-report/`}
-        title="Weekly marketing report"
-        style={{ width: "100%", height: h, border: 0, display: "block", background: "transparent" }}
-      />
+      <p className="sub">Opening the Weekly Marketing Report… If nothing happens, <a href={REPORT}>open it here</a>.</p>
     </Shell>
   );
 }
